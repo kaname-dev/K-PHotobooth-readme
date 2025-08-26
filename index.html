@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>フォトブースアプリ使い方ガイド</title>
+  <style>
+body {
+  font-family: 'Segoe UI', 'Meiryo', sans-serif;
+  background: #f7f7fa;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background: #4a90e2;
+  color: #fff;
+  padding: 1.5em 1em 1em 1em;
+}
+header h1 {
+  margin: 0 0 0.5em 0;
+  font-size: 2em;
+}
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 1em;
+}
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav a:hover {
+  text-decoration: underline;
+}
+main {
+  max-width: 800px;
+  margin: 2em auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2em;
+}
+h2 {
+  color: #4a90e2;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.3em;
+  margin-top: 2em;
+}
+footer {
+  text-align: center;
+  color: #888;
+  padding: 2em 0 1em 0;
+  font-size: 0.9em;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 1em;
+  }
+  nav ul {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+}
+  </style>
+</head>
+<body>
+  <header>
+  <h1>フォトブース運営者向け使い方ガイド</h1>
+  </header>
+  <main>
+    <div id="toc" style="margin:2em 0 2em 0;padding:1em;background:#f7f7f7;border-radius:8px;">
+      <ul style="margin-left:1.5em;">
+        <li><a href="#overview">アプリの利用について</a></li>
+        <li><a href="#screens">アプリの開き方</a></li>
+        <li><a href="#screens">起動時のsystemフォルダ構造</a></li>
+        <li><a href="#screens">各フォルダ・ファイルの説明</a></li>
+        <li><a href="#screens">画面構成</a></li>
+        <li><a href="#settings">準備画面の設定項目</a></li>
+        <li><a href="#operation">運用手順</a></li>
+        <li><a href="#frame-create">フレームの作成方法</a></li>
+      </ul>
+    </div>
+    <section id="overview">
+      <h2>アプリの利用について</h2>
+  <p>本アプリは<a href="https://github.com/kanamecode" target="_blank" rel="noopener">kanamecode</a>によって開発されたフォトブース運営専用ツールです。<br>
+        </p>
+        <div style="margin-top:1em;">
+            <strong>利用規約（要約）</strong><br>
+            <ul style="margin-left:1em;">
+              <li>本ソフトウェアの著作権は開発者に帰属します。</li>
+              <li>商用利用は不可です。商用利用を希望する場合は必ず事前にお問い合わせください。</li>
+              <li>許可した機関以外の第三者に本ソフトウェア（ライセンスキー含む）を譲渡・提供しないでください。</li>
+              <li>規約違反が判明した場合、ライセンスキーを無効化する場合があります。</li>
+              <li>本ソフトウェア自体やフレーム作成等に関する内容を放送・掲載する場合は事前にお問い合わせください。</li>
+              <li>撮影した画像の利用については自由です。</li>
+              <li>利用にあたり、著作権や知的財産権を侵害しない範囲でご利用ください。</li>
+              <li>本ソフトウェアの改変・再配布は禁止です。</li>
+              <li>本ソフトウェアの利用・利用不能によるいかなる損害も、開発者は一切の責任を負いません。</li>
+              <li>利用者は、法令や公序良俗に反しない形で本アプリを利用してください。</li>
+              <li>詳細は <a href="https://kanamecode.github.io/Photo-Booth-System/" target="_blank" rel="noopener">公式利用規約ページ</a> をご参照ください。</li>
+            </ul>
+        </div>
+    </section>
+    <section id="screens">
+        <!-- アプリの開き方 -->
+        <h2>アプリの開き方</h2>
+        <ol>
+          <li>zipフォルダ「K Photobooth」を解凍します。</li>
+          <li>解凍すると「K Photobooth.app」アプリファイルが出てきます。</li>
+          <li>任意の場所にアプリ用フォルダを作成し、その中に「K Photobooth.app」を入れます。</li>
+          <li>「K Photobooth.app」を開きます。</li>
+          <li>アプリを開くと、同じフォルダ内に「system」フォルダが自動生成されます。</li>
+        </ol>
+
+              <h2>起動時に生成されるsystemフォルダ内のフォルダ・ファイルについて</h2>
+        <div style="margin:2em 0;">
+          <strong>フォルダ構造（ツリー図）</strong>
+            <div style="overflow-x:auto;max-width:100%;">
+              <pre style="background:#f4f4f4;border-radius:8px;padding:1em 1.5em;line-height:1.8;font-size:1.08em;white-space:pre;word-break:keep-all;">
+📂 アプリ用フォルダ（任意の名前）
+│
+├─📄 K Photobooth.app（アプリ本体）
+└─📂 system（アプリ起動時に自動生成）
+    │
+    ├─📂 frames
+    │   └─🖼️ [フレーム画像ファイルをここに追加]
+    │      （※フレーム画像がない場合は自動でサンプルフレームが生成されます）
+    ├─📂 secure_data
+    │   └─🔒 [アプリの内部処理に使用される]
+    ├─📂 sounds
+    │   └─🔊 [効果音ファイル（mp3/wav）をここに追加・変更可能]
+    │      
+    └─📄 app_settings.json
+              </pre>
+            </div>
+        </div>
+        <ul>
+          <li><strong>framesフォルダ</strong><br>
+            フレーム画像を入れるためのフォルダです。季節やイベントごとに好きな画像を追加できます。<br>
+            <em>ここに入れた画像は、準備画面のフレーム選択で利用できます。</em>
+          </li>
+          <li><strong>secure_dataフォルダ</strong><br>
+            アプリの内部処理で使われるデータが保存されます。<br>
+          </li>
+          <li><strong>soundsフォルダ</strong><br>
+            撮影時やカウントダウンで鳴る効果音ファイルが保存されます。<br>
+            <em>効果音を変更したい場合は、ここに音声ファイル（mp3またはwav）を追加できます。<br>
+            シャッター音の場合は「shutter」、カウントダウン音の場合は「countdown」とファイル名を付けてください。</em>
+          </li>
+          <li><strong>app_settings.json</strong><br>
+            準備画面で設定した内容（カメラ・フレーム・印刷・Wi-Fi・タイトルなど）が保存されます。<br>
+          </li>
+        </ul>
+        <p>これらのフォルダやファイルは、アプリを起動したときに自動で作成されます。<br>
+        フレーム画像や効果音を追加したい場合は、該当フォルダにファイルを入れてください。</p>
+        
+      <h2>画面構成</h2>
+      <ul>
+        <li><strong>準備画面</strong>：カメラ・フレーム・印刷・Wi-Fi・タイトル等の設定</li>
+        <li><strong>撮影画面</strong>：カメラ映像を表示し、撮影・カウントダウン・合成処理</li>
+        <li><strong>フレーム選択画面</strong>：利用するフレームを選択</li>
+        <li><strong>結果表示画面</strong>：<br>QRコード表示(Wi-FiQR設定またはHTTPSサーバーをオンにしている場合)<br>再印刷ボタン(印刷をオンにしている場合表示)<br>終了ボタン(撮影画面に戻る)</li>
+      </ul>
+    </section>
+    <section id="settings">
+      <h2>準備画面の設定項目</h2>
+      <ol style="margin-left:1em;">
+        <li><strong>タイトル</strong><br>
+          スマホ等で画像を受け取る際ページに表示されるタイトルです。イベント名など、現場に合わせて設定してください。
+        </li>
+        <li><strong>撮影間隔</strong><br>
+          撮影時の間隔（カウントダウン）を設定します。
+        </li>
+        <li><strong>開始遅延</strong><br>
+          カウントダウンとカウントダウンの音声のタイミングがずれる場合に使用します。数値を上げるとカウントダウンの開始が音声より遅くなります。
+        </li>
+        <li><strong>画像反転</strong><br>
+          撮影画像を左右・上下に反転できます。
+        </li>
+        <li><strong>音声テスト</strong><br>
+          撮影・カウントダウンなどに鳴る効果音のテスト再生ができます。
+        </li>
+        <li><strong>権限確認</strong><br>
+          カメラ・ストレージなどの権限が正しく付与されているか確認できます。権限が不足している場合はOSの設定を見直してください。
+        </li>
+        <li><strong>印刷設定</strong><br>
+          印刷する/しないの切り替えを設定します。<br>
+          <span style="color:#4a90e2;">※「自動印刷」をオンにした場合のみ、以下のプリンター関連設定が表示されます。</span>
+          <ul style="margin-left:2em;">
+            <li><strong>プリンター</strong><br>
+              接続済みのプリンターを選択します。プリンターが認識されない場合は接続やドライバーを確認してください。
+            </li>
+            <li><strong>印刷縮小率</strong><br>
+              印刷時の画像縮小率（倍率）を設定できます。用紙サイズやレイアウトに合わせて調整してください。
+            </li>
+            <li><strong>座標グリッドテスト印刷</strong><br>
+              印刷位置や倍率の確認のため、グリッド付きテスト印刷ができます。実際の用紙でズレがないか確認しましょう。
+            </li>
+          </ul>
+        </li>
+        <li><strong>Wi-Fi QR設定</strong><br>
+          会場のWi-Fi情報（SSID・パスワード）を入力すると、来場者向けのQRコードが表示されます。スマホでQRコードを読み取るだけでWi-Fiに接続できます。<br>
+          <span style="color:#ff0000;font-weight:bold;">※使用するネットワークは必ず管理者の許可を得て設定してください。不特定多数の来場者が接続するため、セキュリティに十分注意してください。</span>
+        </li>
+        <li><strong>HTTPSサーバー</strong><br>
+          撮影した画像をWi-Fi経由でスマホなどで受け取る場合、この機能をオンにする必要があります。<br>
+          画像を受け取る端末（スマホ等）は、必ず本アプリが動作しているPCと同じネットワーク内に接続してください。<br>
+          <span style="color:#e67c00;font-weight:bold;">※起動時は毎回セキュリティのためオフになります。利用する場合は必ず毎度でオンにしてください。</span><br>
+        </li>
+        <li><strong>操作方法</strong><br>
+          オンにすると各画面で来場者がわかりやすいように操作方法が表示されます。<br>(タッチパネルで利用する場合などはオフにしてください)
+        </li>
+      </ol>
+        
+    <section id="operation">
+      <h2>運用手順</h2>
+      <ol>
+        <li>アプリ起動後、準備画面で各種設定を行う</li>
+        <li>「開始」ボタンで撮影画面へ移動　((推奨)この際にアプリ画面をフルスクリーンにする)</li>
+        <li>来場者が「撮影」ボタンを押すと、カウントダウン→撮影→フレーム合成→プレビュー表示まで自動進行</li>
+        <li>自動印刷をオンにしている場合は１枚自動印刷される。再度印刷する場合は再印刷を押す。</li>
+        <li>終了ボタンを押して次の来場者へ</li>
+  <li style="list-style:none;color:#ff0000;font-weight:bold;">※終了ボタンを押すと撮影した画像は削除されます。写真を受け取る前に押さないようご注意ください。</li>
+      </ol>
+      <div style="margin:2em 0;padding:1.5em;background:#fffbe6;border:2px solid #ffae00;border-radius:8px;">
+        <h3 style="color:#e67c00;margin-top:0;">スマホで写真を受け取る際の注意事項</h3>
+        <ul style="font-size:1.08em;">
+          <li>セキュリティのため、写真受け渡しページは<strong>HTTPS通信</strong>を利用しています。</li>
+          <li>そのため、スマホでアクセスすると「警告」や「安全ではありません」などの表示が出る場合がありますが、これは本アプリの仕様です。</li>
+        </ul>
+        <div style="margin-top:1em;">
+          <strong style="color:#d32f2f;font-size:1.1em;">【Chromeでアクセスする場合】</strong><br>
+          <span style="color:#d32f2f;">警告画面が表示されたら「詳細設定」→「192.168.x.xxにアクセスする(安全ではありません)」を選択してください。</span>
+        </div>
+        <div style="margin-top:1em;">
+          <strong style="color:#1976d2;font-size:1.1em;">【Safariでアクセスする場合】</strong><br>
+          <span style="color:#1976d2;">警告画面が表示されたら「詳細を表示」→「このWebサイトを閲覧」を選択してください。</span>
+        </div>
+        <div style="margin-top:1em;color:#e67c00;font-weight:bold;">
+          ※警告は本アプリのセキュリティ仕様によるものです。安心してご利用ください。
+        </div>
+      </div>
+    </section>
+  <section id="frame-create">
+    <h2>フレームの作成方法について</h2>
+    <p><strong>自動生成されるサンプルフレーム</strong>を利用してカスタムフレームを作成してください。<br>
+    サンプルフレームを編集することで、簡単にオリジナルフレームが作れます。</p>
+    <ul>
+      <li>フレーム画像は <strong>PNG形式(透過)</strong> で作成してください。</li>
+      <li>フレーム画像の「撮影画像が入る部分」は透明（透過）になっており、そこに撮影した写真が合成されます。</li>
+      <li>推奨アプリ：<a href="https://ibispaint.com/" target="_blank" rel="noopener">アイビスペイント</a> などを使ってオリジナルフレームを作成できます。</li>
+      <li>撮影画像が入る部分にもデザインを入れることが可能です。</li>
+      <li>撮影画像が入る部分に半透明の色や模様を入れると、写真にフィルター効果を加えることもできます。</li>
+    </ul>
+    <p>作成したらframesフォルダに入れてください。</p>
+  </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 フォトブース運営者向けガイド　@kanamecode</p>
+  </footer>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 目次・ナビゲーションのリンクにスムーズスクロールを適用
+  const links = document.querySelectorAll('a[href^="#"]');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      const targetId = this.getAttribute('href').replace('#', '');
+      const target = document.getElementById(targetId);
+      if (target) {
+        e.preventDefault();
+        window.scrollTo({
+          top: target.offsetTop - 20,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+});
+  </script>
+</body>
+</html>
