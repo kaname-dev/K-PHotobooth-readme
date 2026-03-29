@@ -1,298 +1,297 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>フォトブースアプリ使い方ガイド</title>
-  <style>
-body {
-  font-family: 'Segoe UI', 'Meiryo', sans-serif;
-  background: #f7f7fa;
-  color: #222;
-  margin: 0;
-  padding: 0;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Chat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --border: #e8e5df;
+  --text-primary: #1a1a18;
+  --text-secondary: #8a8880;
+  --text-muted: #b8b5ae;
+  --accent: #2d2d2a;
+  --user-bubble: #1a1a18;
+  --user-text: #f7f6f3;
+  --ai-bubble: #ffffff;
+  --ai-text: #1a1a18;
 }
-header {
-  background: #4a90e2;
-  color: #fff;
-  padding: 1.5em 1em 1em 1em;
-}
-header h1 {
-  margin: 0 0 0.5em 0;
-  font-size: 2em;
-}
-nav ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 1em;
-}
-nav a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-}
-nav a:hover {
-  text-decoration: underline;
-}
-main {
-  max-width: 800px;
-  margin: 2em auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 2em;
-}
-h2 {
-  color: #4a90e2;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 0.3em;
-  margin-top: 2em;
-}
-footer {
-  text-align: center;
-  color: #888;
-  padding: 2em 0 1em 0;
-  font-size: 0.9em;
-}
-@media (max-width: 600px) {
-  main {
-    padding: 1em;
-  }
-  nav ul {
-    flex-direction: column;
-    gap: 0.5em;
-  }
-}
-  </style>
+
+html, body { height: 100%; font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+
+#app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--bg); position: relative; }
+
+/* Header */
+header { padding: 14px 20px 12px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; }
+.header-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: background 0.4s; flex-shrink: 0; }
+.header-dot.ready { background: #4caf82; box-shadow: 0 0 0 3px rgba(76,175,130,.18); animation: pulse 2.5s ease-in-out infinite; }
+.header-dot.loading { background: #f0a030; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 2px rgba(76,175,130,.2)} 50%{box-shadow:0 0 0 5px rgba(76,175,130,.1)} }
+.header-title { font-size: 15px; font-weight: 500; }
+.header-badge { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: .03em; }
+
+/* Loading screen */
+#loading-screen { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; z-index: 100; }
+.load-icon { font-size: 36px; opacity: .5; margin-bottom: 4px; }
+.load-title { font-size: 15px; font-weight: 500; }
+.load-sub { font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.6; }
+.progress-wrap { width: 100%; max-width: 260px; }
+.progress-bar { height: 3px; background: #e8e5df; border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width .3s ease; }
+.progress-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 6px; text-align: right; }
+.load-status { font-size: 12px; color: var(--text-secondary); text-align: center; min-height: 18px; }
+.error-box { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px; text-align: center; }
+.error-title { font-size: 15px; font-weight: 500; color: #c0392b; }
+.error-body { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+.retry-btn { margin-top: 8px; padding: 10px 24px; background: var(--accent); color: #fff; border: none; border-radius: 24px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; cursor: pointer; }
+
+/* Messages */
+#messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+#messages::-webkit-scrollbar { display: none; }
+.msg-row { display: flex; opacity: 0; transform: translateY(8px); animation: fadeUp .25s ease forwards; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.msg-row.user { justify-content: flex-end; }
+.msg-row.ai   { justify-content: flex-start; }
+.bubble { max-width: 78%; padding: 11px 14px; border-radius: 18px; font-size: 14.5px; line-height: 1.65; font-weight: 300; word-break: break-word; white-space: pre-wrap; }
+.msg-row.user .bubble { background: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 5px; }
+.msg-row.ai   .bubble { background: var(--ai-bubble); color: var(--ai-text); border: 1px solid var(--border); border-bottom-left-radius: 5px; }
+.bubble.streaming::after { content: '▍'; display: inline-block; animation: blink .7s step-end infinite; margin-left: 1px; font-size: 12px; opacity: .7; }
+@keyframes blink { 0%,100%{opacity:.7} 50%{opacity:0} }
+
+/* Empty state */
+#empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; gap: 6px; color: var(--text-muted); }
+#empty-state .icon { font-size: 32px; opacity: .5; margin-bottom: 8px; }
+#empty-state .title { font-size: 15px; font-weight: 400; color: var(--text-secondary); }
+#empty-state .hint  { font-size: 12.5px; line-height: 1.5; }
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+.chip { border: 1px solid var(--border); background: var(--surface); border-radius: 20px; padding: 7px 13px; font-size: 12.5px; font-family: 'Noto Sans JP', sans-serif; color: var(--text-secondary); cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent; }
+.chip:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Input */
+#input-area { padding: 10px 12px calc(16px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); }
+.input-row { display: flex; align-items: flex-end; gap: 8px; background: #fff; border: 1px solid var(--border); border-radius: 26px; padding: 6px 6px 6px 16px; transition: border-color .15s; }
+.input-row:focus-within { border-color: #aaa; }
+#user-input { flex: 1; border: none; outline: none; background: transparent; font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 300; color: var(--text-primary); resize: none; max-height: 120px; min-height: 24px; line-height: 1.5; padding: 4px 0; -webkit-appearance: none; }
+#user-input::placeholder { color: var(--text-muted); }
+#send-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .1s; -webkit-tap-highlight-color: transparent; }
+#send-btn:active { transform: scale(.9); }
+#send-btn:disabled { background: var(--border); cursor: default; }
+#send-btn svg { width: 16px; height: 16px; }
+</style>
+
 </head>
 <body>
+<div id="app">
   <header>
-  <h1>フォトブース運営者向け使い方ガイド</h1>
+    <div class="header-dot" id="status-dot"></div>
+    <span class="header-title">AI アシスタント</span>
+    <span class="header-badge" id="header-badge">起動中…</span>
   </header>
-  <main>
-    <div id="toc" style="margin:2em 0 2em 0;padding:1em;background:#f7f7f7;border-radius:8px;">
-      <ul style="margin-left:1.5em;">
-        <li><a href="#overview">アプリの利用について</a></li>
-        <li><a href="#screens">アプリの開き方</a></li>
-        <li><a href="#screens">起動時のsystemフォルダ構造</a></li>
-        <li><a href="#screens">各フォルダ・ファイルの説明</a></li>
-        <li><a href="#screens">画面構成</a></li>
-        <li><a href="#settings">準備画面の設定項目</a></li>
-        <li><a href="#operation">運用手順</a></li>
-        <li><a href="#frame-create">フレームの作成方法</a></li>
-      </ul>
-    </div>
-    <section id="overview">
-      <h2>アプリの利用について</h2>
-  <p>本アプリは<a href="https://github.com/kanamecode" target="_blank" rel="noopener">kanamecode</a>によって開発されたフォトブース運営専用ツールです。<br>
-        </p>
-        <div style="margin-top:1em;">
-            <strong>利用規約（要約）</strong><br>
-            <ul style="margin-left:1em;">
-              <li>本ソフトウェアの著作権は開発者に帰属します。</li>
-              <li>商用利用は不可です。商用利用を希望する場合は必ず事前にお問い合わせください。</li>
-              <li>許可した機関以外の第三者に本ソフトウェア（ライセンスキー含む）を譲渡・提供しないでください。</li>
-              <li>規約違反が判明した場合、ライセンスキーを無効化する場合があります。</li>
-              <li>本ソフトウェア自体やフレーム作成等に関する内容を放送・掲載する場合は事前にお問い合わせください。</li>
-              <li>撮影した画像の利用については自由です。</li>
-              <li>利用にあたり、著作権や知的財産権を侵害しない範囲でご利用ください。</li>
-              <li>本ソフトウェアの改変・再配布は禁止です。</li>
-              <li>本ソフトウェアの利用・利用不能によるいかなる損害も、開発者は一切の責任を負いません。</li>
-              <li>利用者は、法令や公序良俗に反しない形で本アプリを利用してください。</li>
-              <li>詳細は <a href="https://kanamecode.github.io/Photo-Booth-System/" target="_blank" rel="noopener">公式利用規約ページ</a> をご参照ください。</li>
-            </ul>
-        </div>
-    </section>
-    <section id="screens">
-        <!-- アプリの開き方 -->
-        <h2>アプリの開き方</h2>
-        <ol>
-          <li>zipフォルダ「K Photobooth」を解凍します。</li>
-          <li>解凍すると「K Photobooth.app」アプリファイルが出てきます。</li>
-          <li>任意の場所にアプリ用フォルダを作成し、その中に「K Photobooth.app」を入れます。</li>
-          <li>「K Photobooth.app」を開きます。</li>
-          <li>アプリを開くと、同じフォルダ内に「system」フォルダが自動生成されます。</li>
-        </ol>
 
-              <h2>起動時に生成されるsystemフォルダ内のフォルダ・ファイルについて</h2>
-        <div style="margin:2em 0;">
-          <strong>フォルダ構造（ツリー図）</strong>
-            <div style="overflow-x:auto;max-width:100%;">
-              <pre style="background:#f4f4f4;border-radius:8px;padding:1em 1.5em;line-height:1.8;font-size:1.08em;white-space:pre;word-break:keep-all;">
-📂 アプリ用フォルダ（任意の名前）
-│
-├─📄 K Photobooth.app（アプリ本体）
-└─📂 system（アプリ起動時に自動生成）
-    │
-    ├─📂 frames
-    │   └─🖼️ [フレーム画像ファイルをここに追加]
-    │      （※フレーム画像がない場合は自動でサンプルフレームが生成されます）
-    ├─📂 secure_data
-    │   └─🔒 [アプリの内部処理に使用される]
-    ├─📂 sounds
-    │   └─🔊 [効果音ファイル（mp3/wav）をここに追加・変更可能]
-    │      
-    └─📄 app_settings.json
-              </pre>
-            </div>
-        </div>
-        <ul>
-          <li><strong>framesフォルダ</strong><br>
-            フレーム画像を入れるためのフォルダです。カスタムしたフレーム画像を追加できます。<br>
-          </li>
-          <li><strong>secure_dataフォルダ</strong><br>
-            アプリの内部処理で使われるデータが保存されます。<br>
-          </li>
-          <li><strong>soundsフォルダ</strong><br>
-            撮影時やカウントダウンで鳴る効果音ファイルが保存されます。<br>
-            <em>効果音を変更したい場合は、ここに音声ファイル（mp3またはwav）を追加できます。<br>
-            シャッター音の場合は「shutter」、カウントダウン音の場合は「countdown」とファイル名を付けてください。</em>
-          </li>
-          <li><strong>app_settings.json</strong><br>
-            準備画面で設定した内容（カメラ・フレーム・印刷・Wi-Fi・タイトルなど）が保存されます。<br>
-          </li>
-        </ul>
-        <p>これらのフォルダやファイルは、アプリを起動したときに自動で作成されます。<br>
-        フレーム画像や効果音を追加したい場合は、該当フォルダにファイルを入れてください。</p>
-        
-      <h2>画面構成</h2>
-      <ul>
-        <li><strong>準備画面</strong>：カメラ・フレーム・印刷・Wi-Fi・タイトル等の設定</li>
-        <li><strong>撮影画面</strong>：カメラ映像を表示し、撮影・カウントダウン・合成処理</li>
-        <li><strong>フレーム選択画面</strong>：利用するフレームを選択</li>
-        <li><strong>結果表示画面</strong>：<br>QRコード表示(Wi-FiQR設定またはHTTPSサーバーをオンにしている場合)<br>再印刷ボタン(印刷をオンにしている場合表示)<br>終了ボタン(撮影画面に戻る)</li>
-      </ul>
-    </section>
-    <section id="settings">
-      <h2>準備画面の設定項目</h2>
-      <ol style="margin-left:1em;">
-        <li><strong>タイトル</strong><br>
-          スマホ等で画像を受け取る際ページに表示されるタイトルです。イベント名など、現場に合わせて設定してください。
-        </li>
-        <li><strong>撮影間隔</strong><br>
-          撮影時の間隔（カウントダウン）を設定します。
-        </li>
-        <li><strong>開始遅延</strong><br>
-          カウントダウンとカウントダウンの音声のタイミングがずれる場合に使用します。数値を上げるとカウントダウンの開始が音声より遅くなります。
-        </li>
-        <li><strong>画像反転</strong><br>
-          撮影画像を左右・上下に反転できます。
-        </li>
-        <li><strong>音声テスト</strong><br>
-          撮影・カウントダウンなどに鳴る効果音のテスト再生ができます。
-        </li>
-        <li><strong>権限確認</strong><br>
-          カメラ・ストレージなどの権限が正しく付与されているか確認できます。権限が不足している場合はOSの設定を見直してください。
-        </li>
-        <li><strong>印刷設定</strong><br>
-          印刷する/しないの切り替えを設定します。<br>
-          <span style="color:#4a90e2;">※「自動印刷」をオンにした場合のみ、以下のプリンター関連設定が表示されます。</span>
-          <ul style="margin-left:2em;">
-            <li><strong>プリンター</strong><br>
-              接続済みのプリンターを選択します。プリンターが認識されない場合は接続やドライバーを確認してください。
-            </li>
-            <li><strong>印刷縮小率</strong><br>
-              印刷時の画像縮小率（倍率）を設定できます。用紙から写真がはみ出る場合調整してください。
-            </li>
-            <li><strong>座標グリッドテスト印刷</strong><br>
-              印刷位置や倍率の確認のため、グリッド付きテスト印刷ができます。実際の用紙でズレがないか確認しましょう。
-            </li>
-          </ul>
-        </li>
-        <li><strong>Wi-Fi QR設定</strong><br>
-          会場のWi-Fi情報（SSID・パスワード）を入力すると、来場者向けのQRコードが表示されます。スマホでQRコードを読み取るだけでWi-Fiに接続できます。<br>
-          <span style="color:#ff0000;font-weight:bold;">※使用するネットワークは必ず管理者の許可を得て設定してください。不特定多数の来場者が接続するため、セキュリティに十分注意してください。</span>
-        </li>
-        <li><strong>HTTPSサーバー</strong><br>
-          撮影した画像をWi-Fi経由でスマホなどで受け取る場合、この機能をオンにする必要があります。<br>
-          画像を受け取る端末（スマホ等）は、必ず本アプリが動作しているPCと同じネットワーク内に接続してください。<br>
-          <span style="color:#e67c00;font-weight:bold;">※起動時は毎回セキュリティのためオフになります。利用する場合は必ず毎度でオンにしてください。</span><br>
-        </li>
-        <li><strong>操作方法</strong><br>
-          オンにすると各画面で来場者がわかりやすいように操作方法が表示されます。<br>(タッチパネルで利用する場合などはオフにしてください)
-        </li>
-      </ol>
-        
-    <section id="operation">
-      <h2>運用手順</h2>
-      <p style="color:#d32f2f;font-size:1.08em;font-weight:bold;margin-bottom:1em;">※どの画面でも <kbd style="background:#fff;border:1px solid #d32f2f;padding:0.2em 0.5em;border-radius:4px;">ESC</kbd> キーを押すと準備画面に戻れます。</p>
-      <ol>
-        <li>アプリ起動後、準備画面で各種設定を行う</li>
-        <li>「開始」ボタンで撮影画面へ移動　((推奨)この際にアプリ画面をフルスクリーンにする)</li>
-        <li>来場者が「撮影」ボタンを押すと、カウントダウン→撮影→フレーム合成→写真受け渡しまで自動進行</li>
-        <li>自動印刷をオンにしている場合は１枚自動印刷される。再度印刷する場合は再印刷を押す。</li>
-        <li>終了ボタンを押して次の来場者へ</li>
-  <li style="list-style:none;color:#ff0000;font-weight:bold;">※終了ボタンを押すと撮影した画像は削除されます。写真を受け取る前に押さないようご注意ください。</li>
-      </ol>
-      <div style="margin:2em 0;padding:1.5em;background:#fffbe6;border:2px solid #ffae00;border-radius:8px;">
-        <h3 style="color:#e67c00;margin-top:0;">スマホで写真を受け取る際の注意事項</h3>
-        <ul style="font-size:1.08em;">
-          <li>セキュリティのため、写真受け渡しページは<strong>HTTPS通信</strong>を利用しています。</li>
-          <li>そのため、スマホでアクセスすると「警告」や「安全ではありません」などの表示が出る場合がありますが、これは本アプリの仕様です。</li>
-        </ul>
-        <div style="margin-top:1em;">
-          <strong style="color:#d32f2f;font-size:1.1em;">【Chromeでアクセスする場合】</strong><br>
-          <span style="color:#d32f2f;">警告画面が表示されたら「詳細設定」→「192.168.x.xxにアクセスする(安全ではありません)」を選択してください。</span>
-        </div>
-        <div style="margin-top:1em;">
-          <strong style="color:#1976d2;font-size:1.1em;">【Safariでアクセスする場合】</strong><br>
-          <span style="color:#1976d2;">警告画面が表示されたら「詳細を表示」→「このWebサイトを閲覧」を選択してください。</span>
-        </div>
-        <div style="margin-top:1em;color:#e67c00;font-weight:bold;">
-          ※警告は本アプリのセキュリティ仕様によるものです。安心してご利用ください。
-        </div>
+  <div id="loading-screen">
+    <div class="load-icon">⬡</div>
+    <div class="load-title" id="load-title">モデルを読み込んでいます</div>
+    <div class="load-sub" id="load-sub">初回は約400MBのダウンロードが発生します。<br>2回目以降はキャッシュから即時起動します。</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-label" id="prog-label">0%</div>
+    </div>
+    <div class="load-status" id="load-status">初期化中…</div>
+  </div>
+
+  <div id="messages" style="display:none">
+    <div id="empty-state">
+      <div class="icon">✦</div>
+      <div class="title">何でも聞いてください</div>
+      <div class="hint">完全オフラインで動作しています</div>
+      <div class="suggestions">
+        <button class="chip" onclick="useSuggestion(this)">自己紹介して</button>
+        <button class="chip" onclick="useSuggestion(this)">簡単なレシピを教えて</button>
+        <button class="chip" onclick="useSuggestion(this)">英語に翻訳して</button>
+        <button class="chip" onclick="useSuggestion(this)">アイデアを出して</button>
       </div>
-      <div style="margin:2em 0;padding:1.5em;background:#e3f2fd;border:2px solid #1976d2;border-radius:8px;">
-        <h3 style="color:#1976d2;margin-top:0;">オフライン環境での使用について</h3>
-        <ul style="font-size:1.08em;">
-          <li>本アプリはオフライン環境でもご利用いただけますが、<strong>最後にインターネットに接続してから24時間以内</strong>のみ利用可能です。</li>
-          <li>24時間を超えてオフライン利用する場合は、もう一度インターネットに接続して認証を行う必要があります。</li>
-          <li>インターネット接続後は再び24時間オフライン利用が可能です。</li>
-        </ul>
-      </div>
-    </section>
-  <section id="frame-create">
-    <h2>フレームの作成方法について</h2>
-    <p><strong>自動生成されるサンプルフレーム</strong>を利用してカスタムフレームを作成してください。<br>
-    サンプルフレームを編集することで、簡単にオリジナルフレームが作れます。</p>
-    <ul>
-      <li>フレーム画像は <strong>PNG形式(透過)</strong> で作成してください。</li>
-      <li>フレーム画像の「撮影画像が入る部分」は透明（透過）になっており、そこに撮影した写真が合成されます。</li>
-      <li>推奨アプリ：<a href="https://ibispaint.com/" target="_blank" rel="noopener">アイビスペイント</a> などを使ってオリジナルフレームを作成できます。</li>
-      <li>撮影画像が入る部分にもデザインを入れることが可能です。</li>
-      <li>撮影画像が入る部分に半透明の色や模様を入れると、写真にフィルター効果を加えることもできます。</li>
-    </ul>
-    <p>作成したらframesフォルダに入れてください。</p>
-  </section>
-  </main>
-  <footer>
-    <p>&copy; 2025 フォトブース運営者向けガイド　@kanamecode</p>
-  </footer>
-  <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // 目次・ナビゲーションのリンクにスムーズスクロールを適用
-  const links = document.querySelectorAll('a[href^="#"]');
-  links.forEach(link => {
-    link.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href').replace('#', '');
-      const target = document.getElementById(targetId);
-      if (target) {
-        e.preventDefault();
-        window.scrollTo({
-          top: target.offsetTop - 20,
-          behavior: 'smooth'
-        });
+    </div>
+  </div>
+
+  <div id="input-area" style="display:none">
+    <div class="input-row">
+      <textarea id="user-input" placeholder="メッセージを入力…" rows="1" disabled></textarea>
+      <button id="send-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"/>
+          <polyline points="5 12 12 5 19 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { pipeline, TextStreamer } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.0/dist/transformers.min.js';
+
+const MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct';
+
+const dot        = document.getElementById('status-dot');
+const badge      = document.getElementById('header-badge');
+const loadScreen = document.getElementById('loading-screen');
+const messagesEl = document.getElementById('messages');
+const inputArea  = document.getElementById('input-area');
+const inputEl    = document.getElementById('user-input');
+const sendBtn    = document.getElementById('send-btn');
+const progFill   = document.getElementById('prog-fill');
+const progLabel  = document.getElementById('prog-label');
+const loadStatus = document.getElementById('load-status');
+
+let generator = null;
+let history = [];
+let isGenerating = false;
+
+// ── Init ──
+async function init() {
+  dot.className = 'header-dot loading';
+  try {
+    generator = await pipeline('text-generation', MODEL, {
+      dtype: 'q4',
+      device: 'webgpu',  // WebGPUが使えれば使う、なければ自動でCPUにフォールバック
+      progress_callback: (p) => {
+        if (p.status === 'downloading' || p.status === 'loading') {
+          const pct = p.progress ? Math.round(p.progress) : 0;
+          progFill.style.width = pct + '%';
+          progLabel.textContent = pct + '%';
+          const name = p.file ? p.file.split('/').pop() : '';
+          loadStatus.textContent = name ? `読み込み中: ${name}` : '読み込み中…';
+        } else if (p.status === 'initiate') {
+          loadStatus.textContent = 'ファイルを確認中…';
+        } else if (p.status === 'ready') {
+          loadStatus.textContent = '準備完了';
+        }
       }
     });
-  });
+
+    loadScreen.style.display = 'none';
+    messagesEl.style.display = 'flex';
+    inputArea.style.display  = 'block';
+    inputEl.disabled = false;
+    dot.className = 'header-dot ready';
+    badge.textContent = 'オフライン';
+
+  } catch (e) {
+    console.error(e);
+    dot.className = 'header-dot';
+    loadScreen.innerHTML = `
+      <div class="error-box">
+        <div style="font-size:32px">✕</div>
+        <div class="error-title">読み込みエラー</div>
+        <div class="error-body">モデルの読み込みに失敗しました。<br>ページを再読み込みしてください。<br><small style="opacity:.6;font-size:11px">${e.message}</small></div>
+        <button class="retry-btn" onclick="location.reload()">再試行</button>
+      </div>`;
+  }
+}
+
+// ── Send ──
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if (!text || isGenerating || !generator) return;
+
+  isGenerating = true;
+  sendBtn.disabled = true;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+
+  hideEmptyState();
+  appendMessage('user', text);
+  history.push({ role: 'user', content: text });
+
+  const aiBubble = appendMessage('ai', '');
+  aiBubble.classList.add('streaming');
+
+  const messages = [
+    { role: 'system', content: 'あなたは親切で役立つAIアシスタントです。日本語で簡潔にわかりやすく答えてください。' },
+    ...history
+  ];
+
+  let reply = '';
+
+  try {
+    const streamer = new TextStreamer(generator.tokenizer, {
+      skip_prompt: true,
+      skip_special_tokens: true,
+      callback_function: (token) => {
+        reply += token;
+        aiBubble.textContent = reply;
+        scrollBottom();
+      }
+    });
+
+    await generator(messages, {
+      max_new_tokens: 512,
+      temperature: 0.7,
+      do_sample: true,
+      streamer,
+    });
+
+    aiBubble.classList.remove('streaming');
+    history.push({ role: 'assistant', content: reply });
+
+  } catch (e) {
+    aiBubble.classList.remove('streaming');
+    aiBubble.textContent = '⚠️ エラーが発生しました。';
+    history.pop();
+  } finally {
+    isGenerating = false;
+    sendBtn.disabled = !inputEl.value.trim();
+    inputEl.focus();
+  }
+}
+
+function hideEmptyState() {
+  const es = document.getElementById('empty-state');
+  if (es) es.remove();
+}
+
+function appendMessage(role, text) {
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollBottom();
+  return bubble;
+}
+
+function scrollBottom() {
+  messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+}
+
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  sendBtn.disabled = !inputEl.value.trim() || isGenerating;
 });
-  </script>
+
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+window.useSuggestion = (el) => {
+  inputEl.value = el.textContent;
+  inputEl.style.height = 'auto';
+  sendMessage();
+};
+
+init();
+</script>
+
 </body>
 </html>
-
-
-
-
-
-
